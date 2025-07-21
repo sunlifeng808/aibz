@@ -69,6 +69,7 @@ class YuanFenJuAPIClient:
         """获取八字分析"""
         # 构建API请求数据
         api_data = {
+            'api_key': self.api_key,
             'name': user_data.get('name'),
             'sex': '1' if user_data.get('gender') == '男' else '0',
             'type': '1',  # 公历类型
@@ -77,32 +78,27 @@ class YuanFenJuAPIClient:
             'day': str(user_data.get('birth_day')),
             'hours': str(user_data.get('birth_hour')),
             'minute': str(user_data.get('birth_minute', 0)),
+            'zhen': '1',
             'province': user_data.get('birth_province', ''),
-            'city': user_data.get('birth_city', ''),
-            'api_key': self.api_key
+            'city': user_data.get('birth_city', '')
         }
         
         logger.info(f"请求八字分析: {user_data.get('name')}")
         
-        try:
-            result = self._make_request('index.php/v1/Bazi/paipan', api_data)
+        result = self._make_request('index.php/v1/Bazi/paipan', api_data)
             
-            # 验证响应数据
-            if not self._validate_bazi_response(result):
-                logger.error(f"八字分析API响应数据验证失败，实际响应: {result}")
-                raise Exception("API返回数据格式不正确")
-            
-            return result
-            
-        except Exception as e:
-            logger.error(f"八字分析请求失败: {str(e)}")
-            # 返回模拟数据作为降级方案
-            return self._get_fallback_bazi_data(user_data)
+        # 验证响应数据
+        if not self._validate_bazi_response(result):
+            logger.error(f"八字分析API响应数据验证失败，实际响应: {result}")
+            raise Exception("API返回数据格式不正确")
+        
+        return result
     
     def get_fortune_prediction(self, user_info: Dict[str, Any], prediction_type: str = 'general') -> Dict[str, Any]:
         """获取运势预测"""
         # 根据缘分居API的实际参数格式
         api_data = {
+            'api_key': self.api_key,
             'name': user_info.get('name', '用户'),
             'sex': '0' if user_info.get('gender') == '女' else '1',
             'type': '1',  # 公历类型
@@ -111,22 +107,16 @@ class YuanFenJuAPIClient:
             'day': str(user_info.get('birth_day', 1)),
             'hours': str(user_info.get('birth_hour', 12)),
             'minute': str(user_info.get('birth_minute', 0)),
+            'zhen': '1',
             'province': user_info.get('birth_province', ''),
-            'city': user_info.get('birth_city', ''),
-            'api_key': self.api_key
+            'city': user_info.get('birth_city', '')
         }
         
         logger.info(f"请求运势预测: {prediction_type}")
         
-        try:
-            result = self._make_request('index.php/v1/Bazi/jingsuan', api_data)
-            return result
-            
-        except Exception as e:
-            logger.error(f"运势预测请求失败: {str(e)}")
-            # 返回模拟数据作为降级方案
-            return self._get_fallback_fortune_data(prediction_type)
-    
+        result = self._make_request('index.php/v1/Bazi/jingsuan', api_data)
+        return result
+
     def _validate_bazi_response(self, response: Dict[str, Any]) -> bool:
         """验证八字分析响应数据"""
         if not isinstance(response, dict):

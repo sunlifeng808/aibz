@@ -10,11 +10,7 @@ from models.prediction_result import PredictionResult
 from services.bazi_service import BaziService
 from config.settings import Settings
 from utils.logger import logger
-
-try:
-    from langchain_community.chat_models import ChatDeepSeek
-except ImportError:
-    ChatDeepSeek = None
+from langchain_deepseek import ChatDeepSeek
 
 class PredictionService:
     """预测服务"""
@@ -27,38 +23,13 @@ class PredictionService:
     
     def _setup_llm(self):
         """设置大语言模型"""
-        try:
-            provider = self.settings.LLM_PROVIDER.lower()
-            
-            if provider == "chatdeepseek" and ChatDeepSeek is not None:
-                # 使用专用的ChatDeepSeek类
-                self.llm = ChatDeepSeek(
-                    api_key=self.settings.DEEPSEEK_API_KEY,
-                    model=self.settings.DEEPSEEK_MODEL_NAME,
-                    temperature=self.settings.LLM_TEMPERATURE,
-                    max_tokens=self.settings.LLM_MAX_TOKENS,
-                    top_p=self.settings.LLM_TOP_P
-                )
-                logger.info(f"ChatDeepSeek LLM初始化成功 - 模型: {self.settings.DEEPSEEK_MODEL_NAME}")
-            elif provider == "chatopenai" or (provider == "chatdeepseek" and ChatDeepSeek is None):
-                # 使用ChatOpenAI兼容的方式调用DeepSeek API或OpenAI API
-                if provider == "chatdeepseek":
-                    logger.warning("ChatDeepSeek不可用，回退到ChatOpenAI兼容模式")
-                
-                self.llm = ChatOpenAI(
-                    api_key=self.settings.DEEPSEEK_API_KEY,
-                    base_url=self.settings.DEEPSEEK_API_BASE_URL,
-                    model=self.settings.DEEPSEEK_MODEL_NAME,
-                    temperature=self.settings.LLM_TEMPERATURE,
-                    max_tokens=self.settings.LLM_MAX_TOKENS
-                )
-                logger.info(f"ChatOpenAI兼容模式LLM初始化成功 - 模型: {self.settings.DEEPSEEK_MODEL_NAME}")
-            else:
-                raise ValueError(f"不支持的LLM提供商: {provider}")
-                
-        except Exception as e:
-            logger.error(f"LLM初始化失败: {str(e)}")
-            raise e
+        self.llm = ChatDeepSeek(
+            api_key=self.settings.DEEPSEEK_API_KEY,
+            model=self.settings.DEEPSEEK_MODEL_NAME,
+            temperature=self.settings.LLM_TEMPERATURE,
+            max_tokens=self.settings.LLM_MAX_TOKENS,
+            top_p=self.settings.LLM_TOP_P
+        )
     
     def _setup_prompts(self):
         """设置提示词模板"""

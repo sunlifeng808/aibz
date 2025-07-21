@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
+import json
 
 class BaziData(BaseModel):
     """八字数据模型"""
@@ -58,6 +59,64 @@ class BaziData(BaseModel):
         required_fields = [self.year_pillar, self.month_pillar, self.day_pillar, self.hour_pillar]
         return all(field for field in required_fields)
     
+    def print_complete_info(self) -> None:
+        """在控制台输出完整的八字信息"""
+        print("\n" + "="*50)
+        print("🔮 八字数据完整信息")
+        print("="*50)
+        
+        # 基本四柱信息
+        print(f"📊 四柱八字: {self.get_bazi_string()}")
+        print(f"   年柱: {self.year_pillar}")
+        print(f"   月柱: {self.month_pillar}")
+        print(f"   日柱: {self.day_pillar}")
+        print(f"   时柱: {self.hour_pillar}")
+        
+        # 格局信息
+        if self.pattern:
+            print(f"🎯 命理格局: {self.pattern}")
+        
+        # 用神忌神
+        if self.yongshen or self.jishen:
+            print(f"⚖️  用神忌神:")
+            if self.yongshen:
+                print(f"   用神: {self.yongshen}")
+            if self.jishen:
+                print(f"   忌神: {self.jishen}")
+        
+        # 十神关系
+        if self.ten_gods:
+            print(f"🌟 十神关系:")
+            for position, god in self.ten_gods.items():
+                print(f"   {position}: {god}")
+        
+        # 大运信息
+        if self.dayun:
+            print(f"🔄 大运信息:")
+            for i, dayun_item in enumerate(self.dayun[:5]):  # 只显示前5个大运
+                age = dayun_item.get('age', f'{i*10+1}-{(i+1)*10}')
+                pillar = dayun_item.get('pillar', '')
+                god = dayun_item.get('god', '')
+                print(f"   {age}岁: {pillar} ({god})")
+        
+        # 五行分析
+        if self.wuxing_analysis:
+            print(f"🌿 五行分析:")
+            wuxing_names = {'wood': '木', 'fire': '火', 'earth': '土', 'metal': '金', 'water': '水'}
+            for element, count in self.wuxing_analysis.items():
+                element_name = wuxing_names.get(element, element)
+                print(f"   {element_name}: {count}")
+        
+        # 数据完整性
+        print(f"✅ 数据完整性: {'完整' if self.is_complete() else '不完整'}")
+        
+        print("="*50 + "\n")
+    
+    def __init__(self, **data):
+        """初始化方法，在数据赋值完毕后自动输出完整信息"""
+        super().__init__(**data)
+        self.print_complete_info()
+    
     @classmethod
     def from_api_response(cls, response: Dict[str, Any]) -> 'BaziData':
         """从缘分居API响应创建BaziData实例"""
@@ -103,14 +162,15 @@ class BaziData(BaseModel):
         
         # 提取基本信息作为格局分析
         base_info = response.get('base_info', {})
-        pattern = base_info.get('sex', '平衡格局')
+        pattern = base_info.get('zhengge', '平衡格局')
         
         # 五行分析（简化处理）
         wuxing_analysis = {
             'wood': 2, 'fire': 2, 'earth': 2, 'metal': 1, 'water': 1
         }
         
-        return cls(
+        # 创建实例
+        instance = cls(
             year_pillar=year_pillar,
             month_pillar=month_pillar,
             day_pillar=day_pillar,
@@ -123,3 +183,6 @@ class BaziData(BaseModel):
             wuxing_analysis=wuxing_analysis,
             raw_response=response
         )
+        
+        print("🎉 从API响应成功创建BaziData实例")
+        return instance

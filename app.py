@@ -202,7 +202,7 @@ class AIBaziApp:
                 name = st.text_input("姓名 *", placeholder="请输入您的姓名")
                 gender = st.selectbox("性别 *", ["请选择", "男", "女"])
                 birth_province = st.text_input("出生省份 *", placeholder="如：北京市")
-                birth_city = st.text_input("出生城市 *", placeholder="如：朝阳区")
+                birth_city = st.text_input("出生城市 *", placeholder="如：朝阳")
             
             with col2:
                 st.markdown("**📅 出生日期（请填写公历/阳历日期）**")
