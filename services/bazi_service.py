@@ -1,6 +1,5 @@
 from typing import Dict, Any, Optional
 from models.user_info import UserInfo
-from models.bazi_data import BaziData
 from api_client import YuanFenJuAPIClient
 from utils.logger import logger
 from utils.data_validator import DataValidator
@@ -13,14 +12,14 @@ class BaziService:
         self.validator = DataValidator()
         self._cache = {}  # 简单的内存缓存
     
-    def get_bazi_analysis(self, user_info: UserInfo) -> BaziData:
-        """获取八字分析数据"""
+    def get_fortune_analysis(self, user_info: UserInfo, prediction_type: str = 'general') -> Dict[str, Any]:
+        """获取运势分析（包含完整的八字和运势信息）"""
         # 生成缓存键
-        cache_key = self._generate_cache_key(user_info)
+        cache_key = self._generate_cache_key(user_info, prediction_type)
         
         # 检查缓存
         if cache_key in self._cache:
-            logger.info(f"从缓存获取八字数据: {user_info.name}")
+            logger.info(f"从缓存获取运势数据: {user_info.name}")
             return self._cache[cache_key]
         
         # 验证用户信息
@@ -29,47 +28,31 @@ class BaziService:
         if validation_errors:
             raise ValueError(f"用户信息验证失败: {', '.join(validation_errors)}")
         
-        # 调用API获取八字分析
-        logger.info(f"开始获取八字分析: {user_info.name}")
-        api_response = self.api_client.get_bazi_analysis(user_data)
-        
-        # 验证API响应
-        if not self.validator.validate_api_response(api_response):
-            raise ValueError("API响应数据格式不正确")
-        
-        # 转换为BaziData对象
-        bazi_data = BaziData.from_api_response(api_response.get('data', {}))
-        
-        # 验证八字数据完整性
-        bazi_validation_errors = self.validator.validate_bazi_data(bazi_data.dict())
-        if bazi_validation_errors:
-            logger.warning(f"八字数据不完整: {', '.join(bazi_validation_errors)}")
-        
-        # 缓存结果
-        self._cache[cache_key] = bazi_data
-        
-        logger.info(f"八字分析获取成功: {user_info.name}")
-        return bazi_data
-    
-    def get_fortune_analysis(self, user_info: UserInfo, prediction_type: str = 'general') -> Dict[str, Any]:
-        """获取运势分析"""
-        logger.info(f"开始获取运势分析: {prediction_type}")
-        
-        # 调用API获取运势预测
+        # 调用API获取运势分析（包含八字信息）
+        logger.info(f"开始获取运势分析: {user_info.name}, 类型: {prediction_type}")
         api_response = self.api_client.get_fortune_prediction(
             user_info.to_api_params(),
             prediction_type
         )
         
+        # 验证API响应
         if not self.validator.validate_api_response(api_response):
-            raise ValueError("运势分析API响应数据格式不正确")
+            raise ValueError("API响应数据格式不正确")
         
-        logger.info(f"运势分析获取成功: {prediction_type}")
-        return api_response.get('data', {})
+        # 直接返回API响应的data部分
+        fortune_data = api_response.get('data', {})
+        
+        # 缓存结果
+        self._cache[cache_key] = fortune_data
+        
+        logger.info(f"运势分析获取成功: {user_info.name}")
+        return fortune_data
     
-    def _generate_cache_key(self, user_info: UserInfo) -> str:
+
+    
+    def _generate_cache_key(self, user_info: UserInfo, prediction_type: str = 'general') -> str:
         """生成缓存键"""
-        return f"{user_info.name}_{user_info.birth_year}_{user_info.birth_month}_{user_info.birth_day}_{user_info.birth_hour}_{user_info.birth_minute}"
+        return f"{user_info.name}_{user_info.birth_year}_{user_info.birth_month}_{user_info.birth_day}_{user_info.birth_hour}_{user_info.birth_minute}_{prediction_type}"
     
 
     

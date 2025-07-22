@@ -65,34 +65,7 @@ class YuanFenJuAPIClient:
                 # 等待后重试
                 time.sleep(self.settings.RETRY_DELAY * (attempt + 1))
     
-    def get_bazi_analysis(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
-        """获取八字分析"""
-        # 构建API请求数据
-        api_data = {
-            'api_key': self.api_key,
-            'name': user_data.get('name'),
-            'sex': '1' if user_data.get('gender') == '男' else '0',
-            'type': '1',  # 公历类型
-            'year': str(user_data.get('birth_year')),
-            'month': str(user_data.get('birth_month')),
-            'day': str(user_data.get('birth_day')),
-            'hours': str(user_data.get('birth_hour')),
-            'minute': str(user_data.get('birth_minute', 0)),
-            'zhen': '1',
-            'province': user_data.get('birth_province', ''),
-            'city': user_data.get('birth_city', '')
-        }
-        
-        logger.info(f"请求八字分析: {user_data.get('name')}")
-        
-        result = self._make_request('index.php/v1/Bazi/paipan', api_data)
-            
-        # 验证响应数据
-        if not self._validate_bazi_response(result):
-            logger.error(f"八字分析API响应数据验证失败，实际响应: {result}")
-            raise Exception("API返回数据格式不正确")
-        
-        return result
+
     
     def get_fortune_prediction(self, user_info: Dict[str, Any], prediction_type: str = 'general') -> Dict[str, Any]:
         """获取运势预测"""
@@ -114,37 +87,10 @@ class YuanFenJuAPIClient:
         
         logger.info(f"请求运势预测: {prediction_type}")
         
-        result = self._make_request('index.php/v1/Bazi/jingsuan', api_data)
+        result = self._make_request('index.php/v1/Bazi/cesuan', api_data)
         return result
 
-    def _validate_bazi_response(self, response: Dict[str, Any]) -> bool:
-        """验证八字分析响应数据"""
-        if not isinstance(response, dict):
-            return False
-        
-        # 检查缘分居API响应格式
-        if 'errcode' not in response:
-            return False
-        
-        if response.get('errcode') != 0:
-            return False
-        
-        # 检查数据字段
-        data = response.get('data', {})
-        if not isinstance(data, dict):
-            return False
-        
-        # 检查必要的八字信息
-        bazi_info = data.get('bazi_info', {})
-        if not isinstance(bazi_info, dict):
-            return False
-        
-        # 检查八字数组
-        bazi = bazi_info.get('bazi', [])
-        if not isinstance(bazi, list) or len(bazi) < 4:
-            return False
-        
-        return True
+
     
 
     
@@ -152,7 +98,7 @@ class YuanFenJuAPIClient:
         """测试API连接"""
         try:
             test_data = {'api_key': self.api_key}
-            result = self._make_request('index.php/v1/Bazi/paipan', test_data, 'GET')
+            result = self._make_request('index.php/v1/Bazi/jingsuan', test_data, 'GET')
             return result.get('errcode') == 0
         except Exception as e:
             logger.error(f"API连接测试失败: {str(e)}")

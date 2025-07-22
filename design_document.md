@@ -4,37 +4,42 @@
 
 ### 前端技术栈
 
-- **框架**: Streamlit
+- **框架**: Streamlit 1.28+
 - **特点**: 
-  - 快速开发和部署
-  - 原生支持Python生态
-  - 内置组件丰富
-  - 适合数据科学和AI应用
+  - 快速开发和部署的Python Web框架
+  - 原生支持Python生态和数据科学库
+  - 丰富的内置组件和自定义CSS支持
+  - 响应式设计和现代化UI组件
+  - 会话状态管理和实时交互
 
 ### 后端技术栈
 
-- **框架**: LangChain
-- **AI模型**: DeepSeek R1
+- **AI模型**: DeepSeek Chat API
+- **第三方API**: 缘分居国学API
+- **数据处理**: Python标准库 + 自定义模块
 - **特点**:
-  - 强大的LLM集成能力
-  - 丰富的提示工程工具
-  - 灵活的链式调用机制
+  - 直接API调用，无需复杂框架
+  - 灵活的提示词配置和管理
+  - 多LLM提供商支持（DeepSeek、OpenAI等）
+  - 专业的八字数据API集成
 
 ### 系统架构设计
 
 ```
-用户界面 (Streamlit)
+用户界面层 (Streamlit App)
+       ↓
+    app.py (主应用)
        ↓
 预测服务层 (prediction_service.py)
        ↓
     ┌─────────────────┬─────────────────┐
     ↓                 ↓                 ↓
-八字数据服务      AI预测模块        数据模型层
-(bazi_service)   (ai_predictor)    (models/)
-    ↓                 ↓
-缘分居API客户端    LangChain框架
-(api_client)         ↓
-    ↓            DeepSeek R1 API
+八字数据服务      AI预测调用        数据模型层
+(bazi_service)   (直接API调用)     (models/)
+    ↓                 ↓                 ↓
+缘分居API客户端    DeepSeek API     用户信息模型
+(api_client.py)      ↓              八字数据模型
+    ↓            HTTP请求           预测结果模型
 缘分居国学API
 ```
 
@@ -45,73 +50,95 @@
 ```
 aibz/
 ├── app.py                 # Streamlit主应用文件
-├── config/
-│   ├── __init__.py
-│   └── settings.py        # 配置文件
-├── core/
-│   ├── __init__.py
-│   ├── ai_predictor.py    # AI预测核心逻辑
-│   ├── api_client.py      # 缘分居国学API客户端
-│   └── prompt_templates.py # 提示词模板
-├── services/
-│   ├── __init__.py
-│   ├── bazi_service.py    # 八字数据服务层
-│   └── prediction_service.py # 预测服务层
-├── models/
-│   ├── __init__.py
-│   ├── user_info.py       # 用户信息数据模型
-│   ├── bazi_data.py       # 八字数据模型
-│   └── prediction_result.py # 预测结果模型
-├── utils/
-│   ├── __init__.py
-│   ├── data_validator.py  # 数据验证工具
-│   ├── response_parser.py # API响应解析工具
-│   └── text_utils.py      # 文本处理工具
+├── api_client.py          # 缘分居国学API客户端
+├── run.py                 # 应用启动脚本
+├── test_app.py            # 应用测试文件
+├── province.json          # 省市数据文件
 ├── requirements.txt       # 项目依赖
-└── README.md             # 项目说明
+├── .env.example          # 环境变量模板
+├── .gitignore            # Git忽略文件
+├── LICENSE               # 项目许可证
+├── README.md             # 项目说明
+├── requirements_document.md # 需求文档
+├── design_document.md    # 设计文档
+├── project_execution_plan.md # 项目执行计划
+├── config/               # 配置模块
+│   ├── __init__.py
+│   ├── settings.py       # 系统配置
+│   └── prompts/          # 提示词配置
+│       ├── comprehensive_prompt.txt # 综合运势提示词
+│       ├── career_prompt.txt        # 事业发展提示词
+│       ├── relationship_prompt.txt  # 感情婚姻提示词
+│       └── business_prompt.txt      # 商业运势提示词
+├── services/             # 业务服务层
+│   ├── __init__.py
+│   ├── bazi_service.py   # 八字数据服务
+│   └── prediction_service.py # 预测服务
+├── models/               # 数据模型层
+│   ├── __init__.py
+│   ├── user_info.py      # 用户信息数据模型
+│   ├── bazi_data.py      # 八字数据模型
+│   └── prediction_result.py # 预测结果模型
+├── utils/                # 工具模块
+│   ├── __init__.py
+│   ├── data_validator.py # 数据验证工具
+│   └── logger.py         # 日志工具
+├── logs/                 # 日志文件目录
+├── .vercel/              # Vercel部署配置
+│   └── project.json
+└── 八字分析系统*.docx    # 项目文档
 ```
 
 ### 核心模块设计
 
-1. **AI预测模块 (ai_predictor.py)**
-   - 封装DeepSeek R1模型调用
-   - 实现提示词构建和优化
-   - 处理模型响应和结果格式化
-   - 专注于基于八字数据生成预测内容
+1. **主应用模块 (app.py)**
+   - Streamlit Web应用的主入口
+   - 用户界面渲染和交互逻辑
+   - 会话状态管理和数据流控制
+   - 省市联动选择和表单验证
+   - 预测结果展示和历史记录管理
 
 2. **缘分居API客户端 (api_client.py)**
    - 封装缘分居国学API的调用接口
    - 处理API认证和请求管理
    - 实现请求重试和错误处理机制
-   - 提供统一的API调用方法
+   - 提供统一的八字数据获取方法
+   - 支持多种API端点和参数配置
 
 3. **八字数据服务 (bazi_service.py)**
    - 协调用户信息收集和API调用
-   - 管理八字数据的获取和缓存
+   - 管理八字数据的获取和处理
    - 提供标准化的八字数据接口
    - 处理API响应数据的验证和转换
+   - 实现数据缓存和性能优化
 
 4. **预测服务层 (prediction_service.py)**
    - 整合八字数据和AI预测功能
    - 管理完整的预测流程
    - 协调多个服务模块的交互
    - 提供统一的预测服务接口
+   - 支持多种预测类型和LLM提供商
 
-5. **数据模型 (models/)**
+5. **数据模型层 (models/)**
    - **用户信息模型 (user_info.py)**：标准化用户输入数据结构
    - **八字数据模型 (bazi_data.py)**：定义API返回的八字数据结构
    - **预测结果模型 (prediction_result.py)**：规范化预测输出格式
 
-6. **提示词模板模块 (prompt_templates.py)**
-   - 定义基于API数据的提示词模板
-   - 支持结构化八字数据的动态插入
-   - 优化AI模型对命理数据的理解
-   - 提供多种预测场景的模板
+6. **配置管理模块 (config/)**
+   - **系统配置 (settings.py)**：环境变量和系统参数管理
+   - **提示词配置 (prompts/)**：分类存储的提示词模板文件
+     - comprehensive_prompt.txt：综合运势分析提示词
+     - career_prompt.txt：事业发展分析提示词
+     - relationship_prompt.txt：感情婚姻分析提示词
+     - business_prompt.txt：商业运势分析提示词
 
 7. **工具模块 (utils/)**
    - **数据验证器 (data_validator.py)**：验证用户输入和API响应
-   - **响应解析器 (response_parser.py)**：解析和转换API返回数据
-   - **文本处理 (text_utils.py)**：结果格式化和内容优化
+   - **日志工具 (logger.py)**：统一的日志记录和管理
+
+8. **数据文件**
+   - **省市数据 (province.json)**：中国省份和城市的分级数据
+   - **环境配置 (.env.example)**：环境变量配置模板
 
 ## 用户体验设计
 
@@ -167,188 +194,166 @@ aibz/
    - 提供通俗易懂的解释和建议
    - 用户可保存、分享或重新咨询
 
-## 数据处理
+## 接口设计与实现
 
-### 输入数据处理
+### 缘分居国学API接口
 
-1. **基础信息验证**
-   - 姓名格式和长度验证
-   - 性别选择验证
-   - 出生日期合理性检查（1900年至当前年份）
-   - 出生时间格式标准化
-   - 出生地点信息验证
+#### 1. API基本信息
+- **API端点**: `https://api.yuanfenju.com`
+- **认证方式**: API Key认证
+- **请求方法**: POST
+- **数据格式**: JSON
 
-2. **API请求数据准备**
-   - 将用户输入转换为API所需格式
-   - 构建标准化的请求参数
-   - 添加必要的API认证信息
-   - 设置请求超时和重试参数
+#### 2. 八字分析接口
+```python
+# 请求参数格式
+{
+    "api_key": "your_api_key",
+    "name": "用户姓名",
+    "gender": "男" | "女",
+    "birth_year": 1990,
+    "birth_month": 1,
+    "birth_day": 1,
+    "birth_hour": 12,
+    "birth_minute": 0,
+    "province": "北京市",
+    "city": "朝阳区"
+}
 
-3. **安全检查**
-   - 输入内容安全验证
-   - 恶意数据过滤
-   - API请求频率限制
-   - 敏感信息脱敏处理
+# 响应数据格式
+{
+    "status": "success",
+    "data": {
+        "bazi_info": {
+            "year_pillar": "庚午",
+            "month_pillar": "戊子",
+            "day_pillar": "甲申",
+            "hour_pillar": "丙午"
+        },
+        "wuxing_analysis": {
+            "metal": 2,
+            "wood": 1,
+            "water": 1,
+            "fire": 2,
+            "earth": 2
+        },
+        "detailed_analysis": "详细的八字分析内容..."
+    }
+}
+```
 
-### API数据处理
+### DeepSeek AI接口
 
-1. **响应数据验证**
-   - API返回状态码检查
-   - 响应数据完整性验证
-   - 数据格式标准化检查
-   - 异常响应处理
+#### 1. API基本信息
+- **API端点**: `https://api.deepseek.com/v1/chat/completions`
+- **认证方式**: Bearer Token
+- **请求方法**: POST
+- **数据格式**: JSON
 
-2. **八字数据解析**
-   - 提取四柱八字信息
-   - 解析十神关系数据
-   - 获取大运流年信息
-   - 提取格局和用神分析
+#### 2. 聊天完成接口
+```python
+# 请求参数格式
+{
+    "model": "deepseek-chat",
+    "messages": [
+        {
+            "role": "system",
+            "content": "系统提示词内容..."
+        },
+        {
+            "role": "user",
+            "content": "用户问题和八字数据..."
+        }
+    ],
+    "temperature": 0.7,
+    "max_tokens": 2000,
+    "top_p": 0.9
+}
 
-3. **数据转换和缓存**
-   - 将API数据转换为内部数据模型
-   - 实现数据缓存机制提高性能
-   - 处理数据版本兼容性
-   - 建立数据备份和恢复机制
+# 响应数据格式
+{
+    "id": "chatcmpl-xxx",
+    "object": "chat.completion",
+    "created": 1677652288,
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "AI生成的预测内容..."
+            },
+            "finish_reason": "stop"
+        }
+    ],
+    "usage": {
+        "prompt_tokens": 100,
+        "completion_tokens": 200,
+        "total_tokens": 300
+    }
+}
+```
 
-### 输出数据处理
+## 数据传递格式
 
-1. **API数据展示**
-   - 八字基础信息可视化展示
-   - 命盘结构图表生成
-   - 专业术语通俗化解释
-   - 关键信息突出显示
+### 用户输入数据格式
+```python
+class UserInfo:
+    name: str              # 用户姓名
+    gender: str            # 性别 ("男" | "女")
+    birth_year: int        # 出生年份
+    birth_month: int       # 出生月份 (1-12)
+    birth_day: int         # 出生日期 (1-31)
+    birth_hour: int        # 出生小时 (0-23)
+    birth_minute: int      # 出生分钟 (0-59)
+    birth_province: str    # 出生省份
+    birth_city: str        # 出生城市
+    question: str          # 咨询问题 (可选)
+```
 
-2. **AI预测内容处理**
-   - 基于API数据的智能分析
-   - 个性化预测内容生成
-   - 结果格式化和美化
-   - 敏感内容过滤和正面引导
+### 八字数据格式
+```python
+class BaziData:
+    year_pillar: str       # 年柱
+    month_pillar: str      # 月柱
+    day_pillar: str        # 日柱
+    hour_pillar: str       # 时柱
+    wuxing_analysis: dict  # 五行分析
+    detailed_analysis: str # 详细分析
+    dayun_info: list      # 大运信息
+    liunian_info: list    # 流年信息
+```
 
-3. **综合报告整合**
-   - 缘分居专业分析与AI预测结合
-   - 多层次信息有序展示
-   - 用户友好的阅读体验
-   - 数据来源说明和免责声明
+### 预测结果格式
+```python
+class PredictionResult:
+    user_info: UserInfo    # 用户信息
+    bazi_data: BaziData   # 八字数据
+    prediction_type: str   # 预测类型
+    ai_analysis: str      # AI分析内容
+    suggestions: str      # 专业建议
+    timestamp: datetime   # 预测时间
+```
 
-## 安全考虑
+## 参数和提示词配置
 
-### 数据安全
+### 环境变量配置
+```bash
+# DeepSeek API配置
+DEEPSEEK_API_KEY=your_deepseek_api_key
+DEEPSEEK_API_BASE=https://api.deepseek.com
+DEEPSEEK_MODEL_NAME=deepseek-chat
 
-- 用户输入数据不持久化存储
-- API密钥安全管理
-- 输入内容安全验证
+# 缘分居API配置
+YUANFENJU_API_KEY=your_yuanfenju_api_key
+YUANFENJU_API_URL=https://api.yuanfenju.com
 
-### 系统安全
+# LLM参数配置
+LLM_PROVIDER=chatdeepseek
+LLM_TEMPERATURE=0.7
+LLM_MAX_TOKENS=2000
+LLM_TOP_P=0.9
 
-- 请求频率限制
-- 异常处理和错误恢复
-- 日志记录和监控
-
-## 性能要求
-
-### 响应时间
-
-- 页面加载时间 < 3秒
-- AI预测生成时间 < 30秒
-- 界面交互响应时间 < 1秒
-
-### 并发处理
-
-- 支持单用户使用（Demo版本）
-- 预留扩展接口支持多用户
-
-## 部署方案
-
-### 开发环境
-
-- Python 3.8+
-- 本地开发服务器
-- 环境变量配置
-
-### 生产环境
-
-- 云服务器部署
-- Docker容器化（可选）
-- 环境配置管理
-
-## 项目里程碑
-
-### 第一阶段：基础框架和数据准备
-
-- 项目结构初始化
-- Streamlit基础界面开发
-- LangChain集成配置
-- 节气数据库和时区数据准备
-- 干支映射表和神煞数据库建立
-
-### 第二阶段：API集成和服务层开发
-
-- 缘分居国学API客户端开发
-- 八字数据服务层实现
-- API响应解析和数据模型构建
-- 错误处理和重试机制完善
-- 数据缓存和性能优化
-
-### 第三阶段：AI集成和界面完善
-
-- 八字分析与AI预测集成
-- 专用提示词模板设计
-- 用户界面优化和美化
-- 分析结果可视化实现
-
-### 第四阶段：测试优化和部署
-
-- API集成稳定性测试
-- AI预测质量验证
-- 用户体验优化
-- 错误处理和异常情况完善
-- 系统性能测试和调优
-- 生产环境部署和项目交付
-
-## 风险评估
-
-### 技术风险
-
-- DeepSeek API稳定性和可用性
-- 缘分居国学API的稳定性和服务质量
-- 模型输出质量和一致性
-- 第三方依赖库兼容性
-- API数据格式变更的兼容性风险
-- 网络连接和API响应时间的不确定性
-- API调用配额和费用控制
-
-### 业务风险
-
-- 用户接受度和满意度
-- 预测内容的合规性
-- 系统性能和稳定性
-- 对第三方API服务的依赖风险
-- API服务商政策变更的影响
-- 数据隐私和安全保护
-- 文化敏感性和社会接受度
-
-## 后续扩展
-
-### 功能扩展
-
-- 多种命理预测算法支持（紫微斗数、奇门遁甲等）
-- 历史预测记录和准确性追踪
-- 用户反馈和评价系统
-- 八字合婚和关系分析功能
-- 择日选时和风水建议
-- 个性化运势提醒和建议推送
-- 集成更多专业命理API服务
-- API服务的智能切换和负载均衡
-- API数据质量评估和对比功能
-
-### 技术扩展
-
-- 多AI模型集成和对比分析
-- 分布式计算架构支持大规模计算
-- 移动端原生应用开发
-- 云端数据库和用户系统
-- 机器学习模型优化预测准确性
-- 区块链技术保护用户隐私和数据安全
-- API网关和服务治理
-- 多数据源集成管理
-- 第三方API安全管理和访问控制
+# 系统配置
+DEBUG=false
+LOG_LEVEL=INFO
+```
