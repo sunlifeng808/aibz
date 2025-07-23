@@ -350,7 +350,7 @@ class AIBaziApp:
             
             if submitted:
                 if not question or question.strip() == "":
-                    question = "请结合我的八字，总体的分析一下我的运势如何，并告诉我今年的运势怎么样"
+                    question = "请结合我的八字，总体的分析一下我的运势如何"
                 self.handle_form_submission({
                     'name': name,
                     'gender': gender,

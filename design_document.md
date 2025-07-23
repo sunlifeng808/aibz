@@ -334,6 +334,113 @@ class PredictionResult:
     timestamp: datetime   # 预测时间
 ```
 
+## 外部接口文档
+
+### get_comprehensive_prediction 接口
+
+#### 接口描述
+`get_comprehensive_prediction` 是系统的核心预测接口，提供基于用户信息的综合命理分析服务。该接口整合了八字分析和AI预测功能，为用户生成专业的命理预测报告。
+
+#### 接口位置
+- **文件路径**: `/services/prediction_service.py`
+- **类名**: `PredictionService`
+- **方法名**: `get_comprehensive_prediction`
+
+#### 输入参数
+
+**参数类型**: `UserInfo` 对象
+
+```python
+class UserInfo(BaseModel):
+    name: str                    # 用户姓名（必填，1-20字符）
+    gender: str                  # 性别（必填，"男" 或 "女"）
+    birth_year: int             # 出生年份（必填，1900-当前年份）
+    birth_month: int            # 出生月份（必填，1-12）
+    birth_day: int              # 出生日期（必填，1-31）
+    birth_hour: int             # 出生小时（必填，0-23）
+    birth_minute: int           # 出生分钟（可选，0-59，默认0）
+    birth_province: str         # 出生省份（必填，1-50字符）
+    birth_city: str             # 出生城市（必填，1-50字符）
+    question: Optional[str]     # 咨询问题（可选）
+```
+
+#### 输出结果
+
+**返回类型**: `PredictionResult` 对象
+
+```python
+class PredictionResult(BaseModel):
+    user_name: str              # 用户姓名
+    prediction_time: datetime   # 预测生成时间
+    bazi_summary: str           # 八字摘要信息
+    prediction_content: str     # AI预测分析内容
+    suggestions: Optional[str]  # 建议指导（可选）
+    disclaimer: str             # 免责声明
+    data_source: str            # 数据来源
+    prediction_type: str        # 预测类型（"综合运势"）
+```
+
+#### 使用示例
+
+```python
+from services.prediction_service import PredictionService
+from models.user_info import UserInfo
+
+# 创建预测服务实例
+prediction_service = PredictionService()
+
+# 构建用户信息
+user_info = UserInfo(
+    name="张三",
+    gender="男",
+    birth_year=1990,
+    birth_month=5,
+    birth_day=15,
+    birth_hour=14,
+    birth_minute=30,
+    birth_province="北京市",
+    birth_city="朝阳区",
+    question="请分析我的整体运势"
+)
+
+# 调用预测接口
+try:
+    result = prediction_service.get_comprehensive_prediction(user_info)
+    
+    # 获取预测结果
+    print(f"用户：{result.user_name}")
+    print(f"预测时间：{result.get_formatted_time()}")
+    print(f"预测内容：{result.prediction_content}")
+    
+    # 导出完整报告
+    full_report = result.get_export_content()
+    
+except Exception as e:
+    print(f"预测失败：{str(e)}")
+```
+
+#### 接口特性
+
+1. **数据验证**: 自动验证输入参数的有效性
+2. **错误处理**: 提供详细的错误信息和异常处理
+3. **日志记录**: 自动记录用户操作和预测请求
+4. **缓存支持**: 支持结果缓存以提高性能
+5. **多格式输出**: 支持导出和分享多种格式
+
+#### 依赖服务
+
+- **八字分析服务**: `BaziService` - 提供传统命理分析
+- **AI预测服务**: `DeepSeek API` - 提供智能预测内容
+- **日志服务**: `Logger` - 记录操作日志
+
+#### 注意事项
+
+1. 确保环境变量正确配置（API密钥等）
+2. 用户信息必须完整且格式正确
+3. 网络连接正常，能够访问外部API
+4. 建议添加适当的错误处理和重试机制
+5. 预测结果仅供参考，需要添加免责声明
+
 ## 参数和提示词配置
 
 ### 环境变量配置
