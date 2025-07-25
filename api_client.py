@@ -64,9 +64,7 @@ class YuanFenJuAPIClient:
                 
                 # 等待后重试
                 time.sleep(self.settings.RETRY_DELAY * (attempt + 1))
-    
-
-    
+                
     def get_fortune_prediction(self, user_info: Dict[str, Any], prediction_type: str = 'general') -> Dict[str, Any]:
         """获取运势预测"""
         # 根据缘分居API的实际参数格式
@@ -89,17 +87,3 @@ class YuanFenJuAPIClient:
         
         result = self._make_request('index.php/v1/Bazi/cesuan', api_data)
         return result
-
-
-    
-
-    
-    def test_connection(self) -> bool:
-        """测试API连接"""
-        try:
-            test_data = {'api_key': self.api_key}
-            result = self._make_request('index.php/v1/Bazi/jingsuan', test_data, 'GET')
-            return result.get('errcode') == 0
-        except Exception as e:
-            logger.error(f"API连接测试失败: {str(e)}")
-            return False

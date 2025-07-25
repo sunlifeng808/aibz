@@ -32,7 +32,6 @@ class Settings:
     RETRY_DELAY = int(os.getenv("RETRY_DELAY", "1"))
     
     # DeepSeek API配置
-    DEEPSEEK_API_BASE = "https://api.deepseek.com/v1"
     DEEPSEEK_API_BASE_URL = os.getenv("DEEPSEEK_API_BASE_URL", "https://api.deepseek.com")
     DEEPSEEK_MODEL_NAME = os.getenv("DEEPSEEK_MODEL_NAME", "deepseek-chat")
     
@@ -44,12 +43,6 @@ class Settings:
     
     # 系统提示词配置
     SYSTEM_PROMPT_COMPREHENSIVE = load_prompt_from_file('comprehensive_prompt.txt')
-    
-    SYSTEM_PROMPT_BUSINESS = load_prompt_from_file('business_prompt.txt')
-    
-    SYSTEM_PROMPT_CAREER = load_prompt_from_file('career_prompt.txt')
-    
-    SYSTEM_PROMPT_RELATIONSHIP = load_prompt_from_file('relationship_prompt.txt')
     
     # 缓存配置
     CACHE_TTL = 3600  # 1小时
