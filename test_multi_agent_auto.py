@@ -46,11 +46,66 @@ def create_test_user():
         question="请分析我的事业运势和财运情况"
     )
 
+def create_test_user1():
+    """创建测试用户"""
+    return UserInfo(
+        name="孙砺锋",
+        gender="男",
+        birth_year=2004,
+        birth_month=12,
+        birth_day=11,
+        birth_hour=21,
+        birth_minute=30,
+        birth_province="湖北省",
+        birth_city="武汉",
+        question="请分析我的事业运势和财运情况"
+    )
+
+def print_prediction_result(prediction_content):
+    """格式化输出AI预测结果"""
+    if not isinstance(prediction_content, dict):
+        print(prediction_content)
+        return
+    
+    print("\n" + "=" * 80)
+    print("🔮 AI命理分析报告")
+    print("=" * 80)
+    
+    # 输出报告信息
+    report_info = prediction_content.get('report_info', {})
+    if report_info:
+        print(f"\n📋 {report_info.get('title', '命理分析报告')}")
+        print(f"📅 生成时间: {report_info.get('generation_time', 'N/A')}")
+        print(f"⏱️ 处理时长: {report_info.get('processing_duration', 'N/A')}")
+    
+    # 输出各个分析章节
+    analysis_sections = prediction_content.get('analysis_sections', {})
+    if analysis_sections:
+        for section_key, section_data in analysis_sections.items():
+            if section_data and section_data.get('content'):
+                print(f"\n{'=' * 60}")
+                print(f"📖 {section_data.get('title', section_key)}")
+                print(f"🤖 分析智能体: {section_data.get('agent', 'N/A')}")
+                print(f"{'=' * 60}")
+                print(section_data.get('content', ''))
+    
+    # 输出统计信息
+    summary = prediction_content.get('summary', {})
+    if summary:
+        print(f"\n{'=' * 60}")
+        print("📊 分析统计")
+        print(f"{'=' * 60}")
+        print(f"📝 总内容长度: {summary.get('total_content_length', 0)} 字")
+        print(f"🤖 使用智能体: {', '.join(summary.get('agents_used', []))}")
+        print(f"📑 分析章节数: {summary.get('sections_count', 0)}")
+    
+    print("\n" + "=" * 80)
+
 async def test_multi_agent_prediction():
     """测试多智能体预测"""
     print("\n=== 多智能体预测测试 ===")
     try:
-        user_info = create_test_user()
+        user_info = create_test_user1()
         print(f"测试用户: {user_info.name}")
         print(f"出生时间: {user_info.birth_year}年{user_info.birth_month}月{user_info.birth_day}日 {user_info.birth_hour}:{user_info.birth_minute}")
         print(f"咨询内容: {user_info.question}")
@@ -76,25 +131,10 @@ async def test_multi_agent_prediction():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file = os.path.join(output_dir, f"prediction_result_{timestamp}.json")
         
-        # 准备完整的结果数据
-        complete_result = {
-            "user_info": {
-                "name": result.user_name,
-                "gender": user_info.gender,
-                "birth_date": f"{user_info.birth_year}-{user_info.birth_month:02d}-{user_info.birth_day:02d}",
-                "birth_time": f"{user_info.birth_hour:02d}:{user_info.birth_minute:02d}",
-                "birth_location": f"{user_info.birth_province} {user_info.birth_city}",
-                "question": user_info.question
-            },
-            "prediction_time": result.prediction_time.isoformat(),
-            "processing_duration_seconds": duration,
-            "prediction_content": result.prediction_content
-        }
-        
         # 保存到JSON文件
         try:
             with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(complete_result, f, ensure_ascii=False, indent=2)
+                json.dump(result.prediction_content, f, ensure_ascii=False, indent=2)
             print(f"💾 预测结果已保存到: {output_file}")
             print(f"📁 文件大小: {os.path.getsize(output_file)} 字节")
         except Exception as e:
@@ -111,6 +151,9 @@ async def test_multi_agent_prediction():
             print(f"- 使用的智能体: {', '.join(result.prediction_content.get('summary', {}).get('agents_used', []))}")
         else:
             print(result.prediction_content)
+        
+        # 输出格式化的AI预测结果
+        print_prediction_result(result.prediction_content)
         
         return True
         

@@ -127,39 +127,39 @@ class MultiAgentPredictionService:
         # 构建结构化的JSON结果
         merged_result = {
             "report_info": {
-                "title": "🔮 玄学AI智能体 - 综合命理分析报告",
+                "title": "玄学AI智能体 - 综合命理分析报告",
                 "generated_time": datetime.now().strftime('%Y年%m月%d日 %H:%M:%S'),
                 "service_provider": "玄学AI智能体服务",
                 "description": "本分析报告由多个专业智能体协同生成，为您提供全方位的命理指导。"
             },
             "analysis_sections": {
                 "foundation_analysis": {
-                    "title": "🔮 八字基础分析",
+                    "title": "八字基础分析",
                     "content": analysis_results.get("foundation", "").strip(),
                     "agent": "foundation"
                 },
                 "yongshen_analysis": {
-                    "title": "⚡ 用神喜忌分析",
+                    "title": "用神喜忌分析",
                     "content": analysis_results.get("yongshen", "").strip(),
                     "agent": "yongshen"
                 },
                 "fortune_prediction": {
-                    "title": "🌟 大运流年预测",
+                    "title": "大运流年预测",
                     "content": analysis_results.get("fortune", "").strip(),
                     "agent": "fortune"
                 },
                 "life_aspects": {
-                    "title": "🎯 人生各方面详解",
+                    "title": "人生各方面详解",
                     "content": analysis_results.get("life_aspects", "").strip(),
                     "agent": "life_aspects"
                 },
                 "solutions": {
-                    "title": "💡 专业解决方案",
+                    "title": "专业解决方案",
                     "content": analysis_results.get("solution", "").strip(),
                     "agent": "solution"
                 },
                 "consultation": {
-                    "title": "❓ 咨询问题回答",
+                    "title": "咨询问题回答",
                     "content": analysis_results.get("consultation", "").strip(),
                     "agent": "consultation"
                 }
