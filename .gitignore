@@ -187,6 +187,7 @@ logs/
 *.log
 temp/
 tmp/
+output/
 
 # API keys and secrets
 .env.local

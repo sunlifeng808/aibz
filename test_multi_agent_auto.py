@@ -43,22 +43,7 @@ def create_test_user():
         birth_minute=30,
         birth_province="广东省",
         birth_city="广州",
-        question="请分析我的事业运势和财运情况"
-    )
-
-def create_test_user1():
-    """创建测试用户"""
-    return UserInfo(
-        name="孙砺锋",
-        gender="男",
-        birth_year=2004,
-        birth_month=12,
-        birth_day=11,
-        birth_hour=21,
-        birth_minute=30,
-        birth_province="湖北省",
-        birth_city="武汉",
-        question="请分析我的事业运势和财运情况"
+        question="我最近工作不顺，感情也有问题，请问应该如何化解？"
     )
 
 def print_prediction_result(prediction_content):
@@ -105,7 +90,7 @@ async def test_multi_agent_prediction():
     """测试多智能体预测"""
     print("\n=== 多智能体预测测试 ===")
     try:
-        user_info = create_test_user1()
+        user_info = create_test_user()
         print(f"测试用户: {user_info.name}")
         print(f"出生时间: {user_info.birth_year}年{user_info.birth_month}月{user_info.birth_day}日 {user_info.birth_hour}:{user_info.birth_minute}")
         print(f"咨询内容: {user_info.question}")

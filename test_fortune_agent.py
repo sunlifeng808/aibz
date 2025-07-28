@@ -32,18 +32,18 @@ def test_config():
 def create_test_user():
     """创建测试用户"""
     return UserInfo(
-        name="孙砺锋",
+        name="孙七",
         gender="男",
-        birth_year=2004,
-        birth_month=12,
-        birth_day=11,
-        birth_hour=21,
+        birth_year=1995,
+        birth_month=6,
+        birth_day=25,
+        birth_hour=9,
         birth_minute=30,
         birth_province="湖北省",
         birth_city="武汉",
-        question="请分析我的事业运势和财运情况"
+        question="请分析我人生各方面的情况"
     )
-
+    
 async def test_fortune_agent():
     """测试大运流年分析智能体"""
     print("\n=== 大运流年分析智能体测试 ===")

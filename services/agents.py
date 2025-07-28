@@ -27,11 +27,25 @@ class BaseAgent:
     
     def _setup_prompt(self, prompt_file: str):
         """设置提示词模板"""
-        prompt_content = self._load_prompt_from_file(prompt_file)
+        prompt_content = self._load_combined_prompt(prompt_file)
         self.prompt = PromptTemplate(
             input_variables=["user_name", "gender", "complete_data", "current_time", "question"],
             template=prompt_content
         )
+    
+    def _load_combined_prompt(self, specific_filename: str) -> str:
+        """加载通用提示词和专门提示词并组合"""
+        
+        # 加载专门提示词
+        specific_content = self._load_prompt_from_file(specific_filename)
+        
+        # 加载通用提示词
+        common_content = self._load_prompt_from_file("common_agent_prompt.txt")
+        
+        # 组合提示词：专门提示词 + 通用提示词
+        combined_prompt = f"{specific_content}\n\n{common_content}"
+        
+        return combined_prompt
     
     def _load_prompt_from_file(self, filename: str) -> str:
         """从文件加载提示词"""
